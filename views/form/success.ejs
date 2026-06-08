@@ -1,0 +1,15 @@
+<div class="row justify-content-center mt-5">
+  <div class="col-md-5 text-center">
+    <i class="bi bi-check-circle-fill text-success fs-1"></i>
+    <h3 class="mt-3 fw-bold">Submitted!</h3>
+    <% if (needsVerification) { %>
+      <p class="text-muted">
+        We sent a confirmation link to <strong><%= submitterEmail %></strong>.
+        Please check your inbox (or <a href="/email">/email</a> in dev) and click the link to verify your submission.
+      </p>
+    <% } else { %>
+      <p class="text-muted">Your response has been recorded. Thank you!</p>
+    <% } %>
+    <a href="/form/<%= form.id %>" class="btn btn-outline-dark mt-3">Submit another</a>
+  </div>
+</div>

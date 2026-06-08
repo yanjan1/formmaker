@@ -1,0 +1,91 @@
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <div class="mb-4">
+      <h2 class="fw-bold mb-1">Account Settings</h2>
+      <p class="text-muted mb-0">
+        Manage your profile and account security.
+      </p>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <% if (success) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+
+    <div class="card shadow-sm mb-4">
+      <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+          <div>
+            <h4 class="fw-semibold mb-1"><%= user.name %></h4>
+            <div class="text-muted">
+              <%= user.email %>
+            </div>
+          </div>
+
+          <span class="badge px-3 py-2 <%= user.isVerified ? 'bg-success' : 'bg-warning text-dark' %>">
+            <%= user.isVerified ? 'Verified' : 'Unverified' %>
+          </span>
+        </div>
+
+        <hr>
+
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <small class="text-muted d-block mb-1">
+              Full Name
+            </small>
+            <div class="fw-medium">
+              <%= user.name %>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted d-block mb-1">
+              Email Address
+            </small>
+            <div class="fw-medium">
+              <%= user.email %>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-4">
+          <a href="/account/change-password" class="btn btn-outline-dark">
+            <i class="bi bi-lock me-1"></i>
+            Change Password
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card border-danger">
+      <div class="card-body p-4">
+
+        <h5 class="fw-semibold text-danger mb-2">
+          Danger Zone
+        </h5>
+
+        <p class="text-muted small mb-3">
+          Permanently delete your account. This action cannot be undone.
+        </p>
+
+        <button
+          class="btn btn-outline-danger"
+          data-bs-toggle="modal"
+          data-bs-target="#deleteModal">
+          Delete Account
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+</div>

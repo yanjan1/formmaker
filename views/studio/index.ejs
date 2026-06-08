@@ -1,0 +1,120 @@
+<div class="row mb-4 align-items-center">
+  <div class="col">
+    <h2 class="fw-bold mb-1">Form Studio</h2>
+    <p class="text-muted mb-0">All your forms in one place.</p>
+  </div>
+  <div class="col-auto">
+    <a href="/studio/new" class="btn btn-dark">
+      <i class="bi bi-plus-lg me-1"></i>
+      New Form
+    </a>
+  </div>
+</div>
+
+<% if (forms.length === 0) { %>
+
+  <div class="card shadow-sm">
+    <div class="card-body text-center py-5">
+      <i class="bi bi-folder2-open fs-1 text-muted d-block mb-3"></i>
+      <h5 class="fw-semibold mb-2">No Forms Yet</h5>
+      <p class="text-muted mb-4">
+        Create your first form to start collecting responses.
+      </p>
+      <a href="/studio/new" class="btn btn-dark">
+        <i class="bi bi-plus-lg me-1"></i>
+        Create Form
+      </a>
+    </div>
+  </div>
+
+<% } else { %>
+
+  <div class="row g-3">
+
+    <% forms.forEach(form => { %>
+
+      <div class="col-md-6 col-lg-4">
+
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column">
+
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h5 class="fw-semibold mb-0 pe-2">
+                <%= form.title %>
+              </h5>
+
+              <span class="badge <%= form.isPublished ? 'bg-success' : 'bg-secondary' %>">
+                <%= form.isPublished ? 'Live' : 'Draft' %>
+              </span>
+            </div>
+
+            <p class="text-muted small mb-4">
+              <%= form.description || 'No description provided.' %>
+            </p>
+
+            <div class="d-flex flex-wrap gap-2 mb-4">
+
+              <span class="badge bg-light text-dark border">
+                <i class="bi bi-list-ul me-1"></i>
+                <%= Array.isArray(form.fields) ? form.fields.length : 0 %> Fields
+              </span>
+
+              <span class="badge bg-light text-dark border">
+                <i class="bi bi-chat-left-text me-1"></i>
+                <%= form._count.responses %> Responses
+              </span>
+
+              <span class="badge bg-light text-dark border">
+                <% if (form.submitType === 'OPEN') { %>
+                  <i class="bi bi-globe me-1"></i>
+                  Open
+                <% } else if (form.submitType === 'EMAIL_RESTRICTED') { %>
+                  <i class="bi bi-envelope-lock me-1"></i>
+                  Restricted
+                <% } else { %>
+                  <i class="bi bi-shield-check me-1"></i>
+                  Verification
+                <% } %>
+              </span>
+
+            </div>
+
+            <div class="mt-auto d-flex flex-wrap gap-2">
+
+              <a
+                href="/studio/<%= form.id %>/edit"
+                class="btn btn-sm btn-outline-dark">
+                <i class="bi bi-pencil me-1"></i>
+                Edit
+              </a>
+
+              <a
+                href="/studio/<%= form.id %>/responses"
+                class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-chat-left-text me-1"></i>
+                Responses
+              </a>
+
+              <% if (form.isPublished) { %>
+                <a
+                  href="/form/<%= form.id %>"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-success">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>
+                  View
+                </a>
+              <% } %>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    <% }) %>
+
+  </div>
+
+<% } %>
+

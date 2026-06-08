@@ -1,0 +1,50 @@
+<div class="row justify-content-center mt-5">
+  <div class="col-md-5 text-center">
+
+    <% if (status === 'ok') { %>
+      <i class="bi bi-check-circle-fill text-success fs-1"></i>
+      <h3 class="mt-3 fw-bold">Submission Verified!</h3>
+      <p class="text-muted">
+        Your response for <strong>"<%= form.title %>"</strong> has been confirmed.
+        Thank you!
+      </p>
+
+    <% } else if (status === 'already') { %>
+      <i class="bi bi-info-circle-fill text-info fs-1"></i>
+      <h3 class="mt-3 fw-bold">Already Verified</h3>
+      <p class="text-muted">
+        This submission for <strong>"<%= form.title %>"</strong> was already confirmed previously.
+      </p>
+
+    <% } else if (status === 'expired') { %>
+      <i class="bi bi-clock-history text-warning fs-1"></i>
+      <h3 class="mt-3 fw-bold">Link Expired</h3>
+      <p class="text-muted">
+        This verification link has expired and the submission has been removed.
+        <% if (form) { %>
+          You can <a href="/form/<%= form.id %>">submit the form again</a>.
+        <% } %>
+      </p>
+
+    <% } else if (status === 'not_allowed') { %>
+      <i class="bi bi-slash-circle-fill text-danger fs-1"></i>
+      <h3 class="mt-3 fw-bold">No Longer Authorized</h3>
+      <p class="text-muted">
+        Your email has been removed from the allowed list for
+        <strong>"<%= form.title %>"</strong>.
+        Your submission has been discarded. Contact the form owner if you think this is a mistake.
+      </p>
+
+    <% } else { %>
+      <i class="bi bi-x-circle-fill text-danger fs-1"></i>
+      <h3 class="mt-3 fw-bold">Invalid Link</h3>
+      <p class="text-muted">
+        This link is invalid or has already been used.
+      </p>
+
+    <% } %>
+
+    <a href="/" class="btn btn-outline-dark mt-3">Go Home</a>
+
+  </div>
+</div>

@@ -1,0 +1,99 @@
+<div class="row mb-4 align-items-center">
+  <div class="col">
+    <h2 class="fw-bold mb-0">Dashboard</h2>
+    <p class="text-muted mb-0">Welcome back, <strong>
+        <%= user.name %>
+      </strong>.</p>
+  </div>
+  <div class="col-auto">
+    <a href="/studio" class="btn btn-outline-dark">
+      <i class="bi bi-ui-checks me-1"></i> Studio
+    </a>
+    <a href="/studio/new" class="btn btn-dark">
+      <i class="bi bi-plus-lg me-1"></i> New Form
+    </a>
+  </div>
+</div>
+
+<% if (forms.length===0) { %>
+  <div class="card p-5 text-center text-muted">
+    <i class="bi bi-ui-checks fs-1 mb-3"></i>
+    <h5>No forms yet</h5>
+    <p class="mb-3">Create your first form to get started.</p>
+    <a href="/studio/new" class="btn btn-dark btn-sm">Create Form</a>
+  </div>
+  <% } else { %>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th class="text-center">Responses</th>
+              <th>Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% forms.forEach(form=> { %>
+              <tr>
+                <td>
+                  <div class="fw-semibold">
+                    <%= form.title %>
+                  </div>
+                  <% if (form.description) { %>
+                    <small class="text-muted">
+                      <%= form.description %>
+                    </small>
+                    <% } %>
+                </td>
+                <td>
+                  <% if (form.submitType==='OPEN' ) { %>
+                    <span class="badge bg-light text-dark border">🌐 Open</span>
+                    <% } else if (form.submitType==='EMAIL_RESTRICTED' ) { %>
+                      <span class="badge bg-light text-dark border">📧 Restricted</span>
+                      <% } else { %>
+                        <span class="badge bg-light text-dark border">✅ Confirmation</span>
+                        <% } %>
+                </td>
+                <td>
+                  <span class="badge <%= form.isPublished ? 'bg-success' : 'bg-secondary' %>">
+                    <%= form.isPublished ? 'Live' : 'Draft' %>
+                  </span>
+                </td>
+                <td class="text-center">
+                  <a href="/studio/<%= form.id %>/responses" class="text-decoration-none">
+                    <span class="badge bg-primary rounded-pill">
+                      <%= form._count.responses %>
+                    </span>
+                  </a>
+                </td>
+                <td>
+                  <small class="text-muted">
+                    <%= new Date(form.createdAt).toLocaleDateString() %>
+                  </small>
+                </td>
+                <td>
+                  <div class="d-flex gap-1 justify-content-end">
+                    <a href="/studio/<%= form.id %>/edit" class="btn btn-sm btn-outline-dark">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="/studio/<%= form.id %>/responses" class="btn btn-sm btn-outline-secondary">
+                      <i class="bi bi-inbox"></i>
+                    </a>
+                    <% if (form.isPublished) { %>
+                      <a href="/form/<%= form.id %>" target="_blank" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                      </a>
+                      <% } %>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <% } %>

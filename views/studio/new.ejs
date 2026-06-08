@@ -1,0 +1,90 @@
+<div class="row justify-content-center">
+  <div class="col-lg-7 col-xl-6">
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4 p-lg-5">
+
+        <div class="mb-4">
+          <h2 class="fw-bold mb-1">Create Form</h2>
+          <p class="text-muted mb-0">
+            Start by creating a form and choosing how responses will be submitted.
+          </p>
+        </div>
+
+        <% if (error) { %>
+          <div class="alert alert-danger">
+            <%= error %>
+          </div>
+        <% } %>
+
+        <form action="/studio/new" method="POST">
+
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              Title
+            </label>
+
+            <input
+              type="text"
+              name="title"
+              class="form-control"
+              placeholder="My Awesome Form"
+              required
+              autofocus>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">
+              Description
+              <span class="text-muted fw-normal">(optional)</span>
+            </label>
+
+            <textarea
+              name="description"
+              class="form-control"
+              rows="3"
+              placeholder="Briefly describe the purpose of this form"></textarea>
+          </div>
+
+          <div class="mb-4">
+
+            <label class="form-label fw-semibold">
+              Submission Type
+            </label>
+
+            <select name="submitType" class="form-select">
+
+              <option value="OPEN">
+                Open Access — Anyone can submit responses
+              </option>
+
+              <option value="CONFIRMATION_REQUIRED">
+                Email Confirmation — Responses require email verification
+              </option>
+
+              <option value="EMAIL_RESTRICTED">
+                Restricted Access — Email collection and verification required
+              </option>
+
+            </select>
+
+            <div class="form-text">
+              This setting can be changed before the form is published.
+            </div>
+
+          </div>
+
+          <button type="submit" class="btn btn-dark w-100">
+            Create Form
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+

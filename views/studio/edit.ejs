@@ -1,0 +1,357 @@
+<% const fields = Array.isArray(form.fields) ? form.fields : [] %>
+<% const errorParam = locals.query?.error || '' %>
+
+<div class="row mb-3 align-items-center">
+  <div class="col">
+    <h2 class="fw-bold mb-0"><%= form.title %></h2>
+    <div class="mt-1 d-flex gap-2 flex-wrap">
+
+  <span class="badge <%= form.isPublished ? 'bg-success' : 'bg-secondary' %>">
+    <%= form.isPublished ? 'Live' : 'Draft' %>
+  </span>
+
+  <span class="badge bg-light text-dark border">
+    <% if (form.submitType === 'OPEN') { %>
+      <i class="bi bi-globe me-1"></i>Open
+    <% } else if (form.submitType === 'EMAIL_RESTRICTED') { %>
+      <i class="bi bi-envelope me-1"></i>Restricted
+    <% } else { %>
+      <i class="bi bi-shield-check me-1"></i>Confirmation
+    <% } %>
+  </span>
+
+</div>
+  </div>
+  <div class="col-auto d-flex gap-2">
+    <a href="/studio" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Go Back to Studio</a>
+    <% if (form.isPublished) { %>
+      <a href="/form/<%= form.id %>" target="_blank" class="btn btn-sm btn-outline-success">View Form</a>
+    <% } %>
+    <form action="/studio/<%= form.id %>/publish" method="POST" class="d-inline">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-sm <%= form.isPublished ? 'btn-warning' : 'btn-success' %>">
+        <%= form.isPublished ? 'Unpublish' : 'Publish' %>
+      </button>
+    </form>
+    <form action="/studio/<%= form.id %>/delete" method="POST" class="d-inline"
+          onsubmit="return confirm('Delete this form and all responses?')">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button class="btn btn-sm btn-outline-danger">Delete</button>
+    </form>
+  </div>
+</div>
+
+<% if (errorParam) { %>
+  <div class="alert alert-danger"><%= decodeURIComponent(errorParam) %></div>
+<% } %>
+
+<div class="row g-4">
+
+  <!-- Left: settings + add field -->
+  <div class="col-md-4">
+
+    <!-- Form Settings -->
+    <div class="card p-3 mb-3">
+      <h6 class="fw-semibold mb-3">Form Settings</h6>
+      <form action="/studio/<%= form.id %>/meta" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+        <div class="mb-2">
+          <label class="form-label small fw-semibold">Title</label>
+          <input type="text" name="title" class="form-control form-control-sm"
+            value="<%= form.title %>" required />
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label small fw-semibold">Description</label>
+          <textarea name="description" class="form-control form-control-sm"
+            rows="2"><%= form.description || '' %></textarea>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label small fw-semibold">Submission Type</label>
+          <select name="submitType" id="submitTypeSelect" class="form-select form-select-sm">
+            <option value="OPEN" <%= form.submitType === 'OPEN' ? 'selected' : '' %>>
+              Open — anyone can submit
+            </option>
+            <option value="CONFIRMATION_REQUIRED" <%= form.submitType === 'CONFIRMATION_REQUIRED' ? 'selected' : '' %>>
+              Confirmation — anyone + email confirmation
+            </option>
+            <option value="EMAIL_RESTRICTED" <%= form.submitType === 'EMAIL_RESTRICTED' ? 'selected' : '' %>>
+              Restricted — whitelist + confirmation
+            </option>
+          </select>
+        </div>
+
+        <!-- Allowed emails — only shown for EMAIL_RESTRICTED -->
+        <div id="allowedEmailsWrapper"
+          class="mb-2 <%= form.submitType === 'EMAIL_RESTRICTED' ? '' : 'd-none' %>">
+          <label class="form-label small fw-semibold">
+            Allowed Emails <small class="text-muted fw-normal">(one per line)</small>
+          </label>
+          <textarea name="allowedEmails" class="form-control form-control-sm" rows="4"
+            placeholder="alice@example.com&#10;bob@example.com"><%= Array.isArray(form.allowedEmails) ? form.allowedEmails.join('\n') : '' %></textarea>
+          <div class="form-text">Only these emails can submit. Confirmation still required.</div>
+        </div>
+
+        <!-- allow multiple — only for non-open forms -->
+        <div id="allowMultipleWrapper"
+          class="mb-3 <%= form.submitType === 'OPEN' ? 'd-none' : '' %>">
+          <div class="form-check form-switch">
+            <input type="checkbox" name="allowMultiple" id="allowMultipleCheck"
+              class="form-check-input" role="switch"
+              <%= form.allowMultiple ? 'checked' : '' %> />
+            <label class="form-check-label small fw-semibold" for="allowMultipleCheck">
+              Allow multiple submissions per email
+            </label>
+          </div>
+          <div class="form-text">
+            If off, each email can only submit once. If on, previous verified responses are kept and a new one is created.
+          </div>
+        </div>
+
+        <button class="btn btn-sm btn-dark w-100 mt-1">Save Settings</button>
+      </form>
+    </div>
+
+    <!-- Add Field -->
+    <div class="card p-3">
+      <h6 class="fw-semibold mb-3">Add Field</h6>
+
+      <div class="mb-2">
+        <label class="form-label small fw-semibold">Type</label>
+        <select id="newFieldType" class="form-select form-select-sm">
+          <option value="text">Text</option>
+          <option value="textarea">Textarea</option>
+          <option value="email">Email</option>
+          <option value="number">Number</option>
+          <option value="date">Date</option>
+          <option value="select">Dropdown (Select)</option>
+          <option value="radio">Radio</option>
+          <option value="checkbox">Checkbox</option>
+          <option value="url">Link (URL)</option>
+          <option value="file">File Upload</option>
+        </select>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label small fw-semibold">Label</label>
+        <input type="text" id="newFieldLabel" class="form-control form-control-sm"
+          placeholder="Field label" />
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label small fw-semibold">
+          Placeholder <small class="text-muted fw-normal">(optional)</small>
+        </label>
+        <input type="text" id="newFieldPlaceholder" class="form-control form-control-sm"
+          placeholder="Placeholder text" />
+      </div>
+
+      <div id="optionsWrapper" class="mb-2 d-none">
+        <label class="form-label small fw-semibold">
+          Options <small class="text-muted fw-normal">(one per line)</small>
+        </label>
+        <textarea id="newFieldOptions" class="form-control form-control-sm" rows="3"
+          placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
+      </div>
+
+      <div class="form-check mb-3">
+        <input type="checkbox" id="newFieldRequired" class="form-check-input" />
+        <label class="form-check-label small" for="newFieldRequired">Required</label>
+      </div>
+
+      <button class="btn btn-sm btn-dark w-100" onclick="addField()">
+        <i class="bi bi-plus-lg me-1"></i>Add Field
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Right: field list -->
+  <div class="col-md-8">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-semibold mb-0">
+          Fields
+          <span id="fieldCount" class="badge bg-secondary ms-1"><%= fields.length %></span>
+        </h6>
+        <button class="btn btn-sm btn-success" onclick="saveFields()">
+          <i class="bi bi-floppy me-1"></i>Save Fields
+        </button>
+      </div>
+
+      <div id="saveMsg" class="alert alert-success d-none py-2 mb-2">Fields saved!</div>
+      <div id="saveErr" class="alert alert-danger d-none py-2 mb-2"></div>
+
+      <div id="fieldList"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const CSRF    = '<%= csrfToken %>';
+  const FORM_ID = '<%= form.id %>';
+  const HAS_OPTIONS = ['select', 'radio', 'checkbox'];
+
+  // seed existing fields from server
+  let fields = <%- JSON.stringify(Array.isArray(form.fields) ? form.fields : []) %>;
+
+  // ── show/hide options textarea based on field type ──────
+  document.getElementById('newFieldType').addEventListener('change', function () {
+    document.getElementById('optionsWrapper')
+      .classList.toggle('d-none', !HAS_OPTIONS.includes(this.value));
+  });
+
+  // ── show/hide allowed emails + allowMultiple based on submit type ──
+  document.getElementById('submitTypeSelect').addEventListener('change', function () {
+    document.getElementById('allowedEmailsWrapper')
+      .classList.toggle('d-none', this.value !== 'EMAIL_RESTRICTED');
+    document.getElementById('allowMultipleWrapper')
+      .classList.toggle('d-none', this.value === 'OPEN');
+  });
+
+  // ── render field list ────────────────────────────────────
+  function renderFields() {
+    const list = document.getElementById('fieldList');
+    document.getElementById('fieldCount').textContent = fields.length;
+
+    if (fields.length === 0) {
+      list.innerHTML = '<p class="text-muted text-center py-4">No fields yet. Add one from the left.</p>';
+      return;
+    }
+
+    list.innerHTML = fields.map((f, i) => `
+      <div class="border rounded p-3 mb-2 bg-light">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="me-2">
+            <span class="badge bg-dark me-1">${f.type}</span>
+            <strong>${escHtml(f.label)}</strong>
+            ${f.required ? '<span class="badge bg-danger ms-1">required</span>' : ''}
+            ${f.placeholder
+              ? `<small class="text-muted ms-2">"${escHtml(f.placeholder)}"</small>`
+              : ''}
+          </div>
+          <div class="d-flex gap-1 flex-shrink-0">
+            ${i > 0
+              ? `<button class="btn btn-sm btn-outline-secondary py-0 px-1"
+                   onclick="moveField(${i}, -1)"><i class="bi bi-arrow-up"></i></button>`
+              : ''}
+            ${i < fields.length - 1
+              ? `<button class="btn btn-sm btn-outline-secondary py-0 px-1"
+                   onclick="moveField(${i}, 1)"><i class="bi bi-arrow-down"></i></button>`
+              : ''}
+            <button class="btn btn-sm btn-outline-danger py-0 px-2"
+              onclick="removeField(${i})"><i class="bi bi-trash"></i></button>
+          </div>
+        </div>
+        ${f.options?.length
+          ? `<div class="mt-2">
+               <small class="text-muted">Options: ${f.options.map(o => escHtml(o)).join(', ')}</small>
+             </div>`
+          : ''}
+      </div>
+    `).join('');
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ── add field ────────────────────────────────────────────
+  function addField() {
+    const type        = document.getElementById('newFieldType').value;
+    const label       = document.getElementById('newFieldLabel').value.trim();
+    const placeholder = document.getElementById('newFieldPlaceholder').value.trim();
+    const required    = document.getElementById('newFieldRequired').checked;
+    const optionsRaw  = document.getElementById('newFieldOptions').value;
+
+    if (!label) {
+      alert('Label is required.');
+      return;
+    }
+
+    const options = HAS_OPTIONS.includes(type)
+      ? optionsRaw.split('\n').map(o => o.trim()).filter(Boolean)
+      : [];
+
+    if (HAS_OPTIONS.includes(type) && options.length === 0) {
+      alert('Add at least one option for this field type.');
+      return;
+    }
+
+    fields.push({
+      id:       crypto.randomUUID(),
+      type,
+      label,
+      placeholder,
+      required,
+      order:    fields.length,
+      options:  options.length ? options : undefined
+    });
+
+    // reset inputs
+    document.getElementById('newFieldLabel').value       = '';
+    document.getElementById('newFieldPlaceholder').value = '';
+    document.getElementById('newFieldRequired').checked  = false;
+    document.getElementById('newFieldOptions').value     = '';
+
+    renderFields();
+  }
+
+  // ── remove field ─────────────────────────────────────────
+  function removeField(i) {
+    fields.splice(i, 1);
+    fields.forEach((f, idx) => f.order = idx);
+    renderFields();
+  }
+
+  // ── reorder field ─────────────────────────────────────────
+  function moveField(i, dir) {
+    const j = i + dir;
+    if (j < 0 || j >= fields.length) return;
+    [fields[i], fields[j]] = [fields[j], fields[i]];
+    fields.forEach((f, idx) => f.order = idx);
+    renderFields();
+  }
+
+  // ── save fields via fetch ────────────────────────────────
+  async function saveFields() {
+    const msg = document.getElementById('saveMsg');
+    const err = document.getElementById('saveErr');
+    msg.classList.add('d-none');
+    err.classList.add('d-none');
+
+    try {
+      const res = await fetch(`/studio/${FORM_ID}/fields`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': CSRF
+        },
+        body: JSON.stringify({ fields })
+      });
+
+      const data = await res.json();
+
+      if (data.ok) {
+        msg.classList.remove('d-none');
+        setTimeout(() => msg.classList.add('d-none'), 3000);
+      } else {
+        err.textContent = data.error || 'Save failed.';
+        err.classList.remove('d-none');
+      }
+    } catch (e) {
+      err.textContent = 'Network error. Please try again.';
+      err.classList.remove('d-none');
+    }
+  }
+
+  // initial render
+  renderFields();
+</script>

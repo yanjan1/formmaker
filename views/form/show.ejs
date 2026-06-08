@@ -1,0 +1,139 @@
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card p-4 p-md-5">
+      <h2 class="fw-bold mb-1">
+        <%= form.title %>
+      </h2>
+      <% if (form.description) { %>
+        <p class="text-muted mb-4">
+          <%= form.description %>
+        </p>
+        <% } else { %>
+          <div class="mb-4"></div>
+          <% } %>
+
+            <% if (error) { %>
+              <div class="alert alert-danger">
+                <%= error %>
+              </div>
+              <% } %>
+
+                <form action="/form/<%= form.id %>?_csrf=<%= csrfToken %>" method="POST"  enctype="multipart/form-data" novalidate>
+             
+                  <% form.fields.forEach(function(field) { %>
+                    <% const hasErr=locals.errors && errors[field.id] %>
+                      <% const val=values[field.id] %>
+
+                        <div class="mb-4">
+                          <label class="form-label fw-semibold">
+                            <%= field.label %>
+                              <% if (field.required) { %>
+                                <span class="text-danger ms-1">*</span>
+                                <% } %>
+                          </label>
+
+                          <% if (field.type==='textarea' ) { %>
+                            <textarea name="<%= field.id %>" class="form-control <%= hasErr ? 'is-invalid' : '' %>"
+                              placeholder="<%= field.placeholder || '' %>" rows="3"><%= val || '' %></textarea>
+
+                            <% } else if (field.type==='select' ) { %>
+                              <select name="<%= field.id %>" class="form-select <%= hasErr ? 'is-invalid' : '' %>">
+                                <option value="">— Select —</option>
+                                <% (field.options || []).forEach(function(opt) { %>
+                                  <option value="<%= opt %>" <%=val===opt ? 'selected' : '' %>><%= opt %>
+                                  </option>
+                                  <% }) %>
+                              </select>
+
+                              <% } else if (field.type==='radio' ) { %>
+                                <% let radioIdx=0 %>
+                                  <% (field.options || []).forEach(function(opt) { %>
+                                    <% const radioId=field.id + '_' + radioIdx %>
+                                      <div class="form-check">
+                                        <input type="radio" name="<%= field.id %>" value="<%= opt %>"
+                                          id="<%= radioId %>" class="form-check-input <%= hasErr ? 'is-invalid' : '' %>"
+                                          <%=val===opt ? 'checked' : '' %> />
+                                        <label class="form-check-label" for="<%= radioId %>">
+                                          <%= opt %>
+                                        </label>
+                                      </div>
+                                      <% radioIdx++ %>
+                                        <% }) %>
+
+                                          <% } else if (field.type==='checkbox' ) { %>
+                                            <% const checked=Array.isArray(val) ? val : [] %>
+                                              <% (field.options || []).forEach(function(opt) { %>
+                                                <% const cbId=field.id + '_cb_' + opt.replace(/\s+/g, '_' ) %>
+                                                  <div class="form-check">
+                                                    <input type="checkbox" name="<%= field.id %>" value="<%= opt %>"
+                                                      id="<%= cbId %>"
+                                                      class="form-check-input <%= hasErr ? 'is-invalid' : '' %>"
+                                                      <%=checked.includes(opt) ? 'checked' : '' %> />
+                                                    <label class="form-check-label" for="<%= cbId %>">
+                                                      <%= opt %>
+                                                    </label>
+                                                  </div>
+                                                  <% }) %>
+
+                                                    <% } else if (field.type==='url' ) { %>
+                                                      <input type="url" name="<%= field.id %>"
+                                                        class="form-control <%= hasErr ? 'is-invalid' : '' %>"
+                                                        placeholder="<%= field.placeholder || 'https://example.com' %>"
+                                                        value="<%= val || '' %>" />
+                                                      <div class="form-text">Must start with http:// or https://</div>
+
+                                                      <% } else if (field.type==='file' ) { %>
+                                                        <input type="file" name="<%= field.id %>"
+                                                          class="form-control <%= hasErr ? 'is-invalid' : '' %>"
+                                                          accept="*/*" />
+                                                        <div class="form-text">Max file size: 10MB.</div>
+
+                                                        <% } else { %>
+                                                          <input type="<%= field.type %>" name="<%= field.id %>"
+                                                            class="form-control <%= hasErr ? 'is-invalid' : '' %>"
+                                                            placeholder="<%= field.placeholder || '' %>"
+                                                            value="<%= val || '' %>" />
+                                                          <% } %>
+
+                                                            <% if (hasErr) { %>
+                                                              <div class="invalid-feedback d-block">
+                                                                <%= errors[field.id] %>
+                                                              </div>
+                                                              <% } %>
+                        </div>
+                        <% }) %>
+
+                          <% if (form.submitType !=='OPEN' ) { %>
+                            <div class="mb-4">
+                              <label class="form-label fw-semibold">
+                                Your Email <span class="text-danger ms-1">*</span>
+                              </label>
+                              <input type="email" name="submitterEmail"
+                                class="form-control <%= locals.errors && errors.submitterEmail ? 'is-invalid' : '' %>"
+                                placeholder="you@example.com"
+                                value="<%= locals.values && values.submitterEmail || '' %>" />
+                              <% if (locals.errors && errors.submitterEmail) { %>
+                                <div class="invalid-feedback d-block">
+                                  <%= errors.submitterEmail %>
+                                </div>
+                                <% } %>
+                                  <div class="form-text">
+                                    <% if (form.submitType==='EMAIL_RESTRICTED' ) { %>
+                                      This form is restricted. Your email must be on the allowed list and will require
+                                      confirmation.
+                                      <% } else { %>
+                                        A confirmation link will be sent to verify your submission.
+                                        <% } %>
+                                  </div>
+                            </div>
+                            <% } %>
+
+                              <button type="submit" class="btn btn-dark w-100">Submit</button>
+                </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelector('.navbar')?.remove();
+</script>

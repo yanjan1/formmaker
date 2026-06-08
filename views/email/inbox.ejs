@@ -1,0 +1,34 @@
+<div class="row">
+  <div class="col-12 mb-3 d-flex align-items-center gap-2">
+    <h2 class="fw-bold mb-0">Dev Mailbox</h2>
+    <span class="badge bg-warning text-dark">DEV ONLY</span>
+  </div>
+
+  <% if (emails.length === 0) { %>
+    <div class="col-12">
+      <div class="card p-5 text-center text-muted">
+        <i class="bi bi-inbox fs-1 mb-2"></i>
+        <p class="mb-0">No emails yet.</p>
+      </div>
+    </div>
+  <% } else { %>
+    <% emails.forEach(email => { %>
+      <div class="col-12 mb-3">
+        <div class="card p-4">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <span class="badge bg-secondary me-2">To: <%= email.toAddress %></span>
+              <strong><%= email.subject %></strong>
+            </div>
+            <small class="text-muted"><%= new Date(email.sentAt).toLocaleString() %></small>
+          </div>
+          <pre class="bg-light p-3 rounded mb-0" style="white-space:pre-wrap;font-size:13px;"><%= email.body %></pre>
+        </div>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+
+<script>
+  document.querySelector('.navbar')?.remove();
+</script>

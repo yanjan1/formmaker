@@ -1,0 +1,91 @@
+<div class="row justify-content-center mt-5">
+  <div class="col-lg-8 text-center">
+
+    <% if (user) { %>
+
+      <p class="text-muted text-uppercase fw-semibold small mb-3">
+        Welcome Back
+      </p>
+
+      <h1 class="display-4 fw-bold mb-3">
+        Ready to Build Your Next Form?
+      </h1>
+
+      <p class="lead text-muted mb-5">
+        Create new forms, manage submissions, export responses, and keep track of everything from one place.
+      </p>
+
+    <% } else { %>
+
+      <p class="text-muted text-uppercase fw-semibold small mb-3">
+        Form Builder & Response Manager
+      </p>
+
+      <h1 class="display-4 fw-bold mb-3">
+        Stop Collecting Data<br>the Hard Way
+      </h1>
+
+      <p class="lead text-muted mb-5">
+        Build a form, decide who can fill it, require email verification so only real responses count, and export
+        everything to Excel when you're done. That's it.
+      </p>
+
+    <% } %>
+
+    <div class="row g-3 mb-5 text-start">
+      <div class="col-md-4">
+        <div class="card p-3 h-100">
+          <i class="bi bi-ui-checks-grid fs-4 mb-2 text-dark"></i>
+          <h6 class="fw-semibold">Build Any Form</h6>
+          <p class="text-muted small mb-0">
+            Text, email, dropdowns, radio buttons, checkboxes, dates,
+            and more. Create forms that match your exact needs.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card p-3 h-100">
+          <i class="bi bi-shield-check fs-4 mb-2 text-dark"></i>
+          <h6 class="fw-semibold">Control Who Responds</h6>
+          <p class="text-muted small mb-0">
+            Open forms to everyone, verify emails, or limit access to approved respondents only.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card p-3 h-100">
+          <i class="bi bi-file-earmark-excel fs-4 mb-2 text-dark"></i>
+          <h6 class="fw-semibold">Export & Analyse</h6>
+          <p class="text-muted small mb-0">
+            Review submissions, filter responses, and export everything to Excel in seconds.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 justify-content-center mt-2">
+      <% if (user) { %>
+        <a href="/dashboard" class="btn btn-dark btn-lg">
+          Open Dashboard
+        </a>
+        <a href="/forms" class="btn btn-outline-dark btn-lg">
+          My Forms
+        </a>
+      <% } else { %>
+        <a href="/auth/register" class="btn btn-dark btn-lg">
+          Create Your First Form
+        </a>
+        <a href="/auth/login" class="btn btn-outline-dark btn-lg">
+          Sign In
+        </a>
+      <% } %>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.querySelector('.navbar')?.remove();
+</script>

@@ -1,0 +1,75 @@
+<% const fields=Array.isArray(form.fields) ? form.fields : [] %>
+
+
+
+
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h2 class="fw-bold mb-0">Responses</h2>
+      <p class="text-muted mb-0">
+        <%= form.title %>
+      </p>
+    </div>
+    <div class="col-auto d-flex gap-2">
+      <% if (form.responses.length> 0) { %>
+        <a href="/studio/<%= form.id %>/responses/export" class="btn btn-sm btn-success">
+          <i class="bi bi-file-earmark-excel me-1"></i>Export Excel
+        </a>
+        <% } %>
+          <a href="/studio/<%= form.id %>/edit" class="btn btn-sm btn-outline-dark"><i class="bi bi-arrow-left me-1"></i> Back to the Studio</a>
+    </div>
+  </div>
+
+  <% if (form.responses.length===0) { %>
+    <div class="card p-5 text-center text-muted">
+      <i class="bi bi-inbox fs-1 mb-2"></i>
+      <p class="mb-0">No responses yet.</p>
+    </div>
+    <% } else { %>
+      <% form.responses.forEach(r=> { %>
+        <div class="card mb-3 p-4">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <small class="text-muted">
+                <%= new Date(r.submittedAt).toLocaleString() %>
+              </small>
+              <% if (r.submitterEmail) { %>
+                <span class="ms-2 badge bg-light text-dark border">
+                  <%= r.submitterEmail %>
+                </span>
+                <% } %>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+              <span class="badge <%= r.isVerified ? 'bg-success' : 'bg-warning text-dark' %>">
+                <%= r.isVerified ? 'Verified' : 'Unverified' %>
+              </span>
+              <form action="/studio/<%= form.id %>/responses/<%= r.id %>/delete" method="POST"
+                onsubmit="return confirm('Delete this response?')">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button class="btn btn-sm btn-outline-danger py-0">✕</button>
+              </form>
+            </div>
+          </div>
+          <dl class="row mb-0">
+            <% fields.forEach(field=> { %>
+              <dt class="col-sm-4 text-muted small">
+                <%= field.label %>
+              </dt>
+              <dd class="col-sm-8 small">
+                <% const val=r.data[field.id] %>
+                  <% if (Array.isArray(val)) { %>
+                    <%= val.join(', ') || ' —' %>
+                      <% } else if (val && typeof val==='object' && val.filename) { %>
+                        <a href="/uploads/<%= val.filename %>" target="_blank">
+                          <%= val.originalname %>
+                        </a>
+                        <small class="text-muted ms-1">(<%= (val.size / 1024).toFixed(1) %>KB)</small>
+                        <% } else { %>
+                          <%= val || '—' %>
+                            <% } %>
+              </dd>
+              <% }) %>
+          </dl>
+        </div>
+        <% }) %>
+          <% } %>

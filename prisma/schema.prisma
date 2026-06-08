@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                String    @id @default(uuid(7))
+  name              String
+  email             String    @unique
+  password          String
+  isVerified        Boolean   @default(false)
+  verifyToken       String?   @unique
+  verifyTokenExp    DateTime?
+  resetToken        String?   @unique
+  resetTokenExp     DateTime?
+  createdAt         DateTime  @default(now())
+  forms             Form[]
+}
+
+model Email {
+  id         String   @id @default(uuid(7))
+  toAddress  String
+  subject    String
+  body       String
+  sentAt     DateTime @default(now())
+}
+
+enum SubmitType {
+  OPEN
+  EMAIL_RESTRICTED
+  CONFIRMATION_REQUIRED
+}
+
+model Form {
+  id            String     @id @default(uuid(7))
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete:  Cascade)
+  title         String
+  description   String?
+  fields        Json
+  submitType    SubmitType @default(OPEN)
+  allowedEmails Json?
+  allowMultiple Boolean    @default(false)
+  isPublished   Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  responses     Response[]
+}
+
+model Response {
+  id            String    @id @default(uuid(7))
+  formId        String
+  form          Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
+  data          Json      // { fieldId: value, ... }
+  submitterEmail String?
+  isVerified    Boolean   @default(false)
+  verifyToken   String?   @unique
+  verifyTokenExp DateTime?
+  submittedAt   DateTime  @default(now())
+}
+
